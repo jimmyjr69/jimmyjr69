@@ -29,27 +29,6 @@ matrix* createArrayOfMatrixFromArray(const int* array, size_t matrixAmount, size
     return matrices;
 }
 
-int countZeroRows(matrix matrix, int rows, int columns) {
-    int count = 0;
-
-    for (int i = 0; i < rows; i++) {
-        bool foundNonZero = false;
-
-        for (int j = 0; j < columns; j++) {
-            if (matrix.cells[i][j] != 0) {
-                foundNonZero = true;
-                break;
-            }
-        }
-
-        if (!foundNonZero) {
-            count++;
-        }
-    }
-
-    return count;
-}
-
 void test_countZeroRows() {
     matrix matrix = createMatrixFromArray((int[]) {
         1, 1, 0,
@@ -60,7 +39,7 @@ void test_countZeroRows() {
         }, 5, 3
     );
 
-    assert(countZeroRows(matrix, 5, 3) == 2);
+    assert(countZeroRows(matrix) == 2);
 
     freeMemMatrix(&matrix);
 }

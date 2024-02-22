@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <mem.h>
+#include "../../util/util.h"
 
 int** allocateCells(int rows, int columns) {
     int** cells = (int**) malloc(sizeof(int*) * rows);
@@ -93,6 +94,10 @@ void checkRowIndex(int rowIndex, int rowAmount) {
 }
 
 void swapRows(matrix matrix, int row1Index, int row2Index) {
+    if (row1Index == row2Index) {
+        return;
+    }
+
     checkRowIndex(row1Index, matrix.rows);
     checkRowIndex(row2Index, matrix.rows);
 
@@ -133,7 +138,7 @@ int indexOfMinRowByCriteria(matrix matrix, int (*criteria) (int*, int), int star
 /**
  * uses insertion sort
  */
-void sortRowsByCriteria(matrix matrix, int (*criteria)(int*, int)) {
+void sortRowsByCriteria(matrix matrix, int (*criteria)(const int*, int)) {
     for (int i = 0; i < matrix.rows; i++) {
         int* row = matrix.cells[i];
         int weight = criteria(row, matrix.columns);
@@ -160,7 +165,7 @@ int* getColumn(matrix matrix, int columnIndex) {
     return column;
 }
 
-int indexOfMaxColumnByCriteria(matrix matrix, int start, int end, int (*criteria)(int*, int)) {
+int indexOfMaxColumnByCriteria(matrix matrix, int start, int end, int (*criteria)(const int*, int)) {
     int maxColumnIndex = 0;
     int maxWeight = criteria(getColumn(matrix, start), matrix.rows);
 
@@ -176,7 +181,7 @@ int indexOfMaxColumnByCriteria(matrix matrix, int start, int end, int (*criteria
     return maxColumnIndex;
 }
 
-void selectionSortColumnsByCriteria(matrix matrix, int (*criteria)(int*, int)) {
+void sortColumnsByCriteria(matrix matrix, int (*criteria)(const int*, int)) {
     for (int i = 0; i < matrix.columns; i++) {
         swapColumns(matrix, i, indexOfMaxColumnByCriteria(matrix, i + 1, matrix.columns, criteria));
     }
@@ -301,4 +306,43 @@ position getMinValuePos(matrix matrix) {
 
 position getMaxValuePos(matrix matrix) {
     return positionOfValueByPredicate(matrix, isMoreThan);
+}
+
+matrix multiply(matrix left, matrix right) {
+    if (left.columns != right.rows) {
+        fprintf(stderr, "Unable to multiply matrices because left matrix columns != right matrix rows");
+        exit(EXIT_FAILURE);
+    }
+
+    int resultRows = left.rows;
+    int resultColumns = right.columns;
+    int** resultCells = allocateCells(resultRows, resultColumns);
+
+    for (int i = 0; i < resultRows; ++i) {
+        int* row = left.cells[i];
+
+        for (int j = 0; j < resultColumns; ++j) {
+            int sum = 0;
+
+            for (int k = 0; k < left.columns; ++k) {
+                sum += row[k] * right.cells[j][k];
+            }
+
+            resultCells[i][j] = sum;
+        }
+    }
+
+    return (matrix) { resultCells, resultRows, resultColumns };
+}
+
+int countZeroRows(matrix matrix) {
+    int count = 0;
+
+    for (int i = 0; i < matrix.rows; i++) {
+        if (countValues(matrix.cells[i], matrix.columns, 0) == 0) {
+            count++;
+        }
+    }
+
+    return count;
 }

@@ -35,9 +35,9 @@ void swapRows(matrix matrix, int row1Index, int row2Index);
 
 void swapColumns(matrix matrix, int column1Index, int column2Index);
 
-void sortRowsByCriteria(matrix matrix, int (*criteria)(int*, int));
+void sortRowsByCriteria(matrix matrix, int (*criteria)(const int*, int));
 
-void selectionSortColsMatrixByColCriteria(matrix matrix, int (*criteria)(int*, int));
+void sortColumnsByCriteria(matrix matrix, int (*criteria)(const int*, int));
 
 bool isSquareMatrix(matrix* matrix);
 
@@ -54,5 +54,9 @@ void transposeMatrix(matrix* matrix);
 position getMinValuePos(matrix matrix);
 
 position getMaxValuePos(matrix matrix);
+
+matrix multiply(matrix left, matrix right);
+
+int countZeroRows(matrix matrix);
 
 #endif //LAB_15_MATRIX_H
