@@ -56,11 +56,82 @@ bool isMutuallyInverseMatrices(matrix left, matrix right) {
 }
 
 long long findSumOfMaxesOfPseudoDiagonal(matrix matrix) {
-    int maxes[matrix.rows + matrix.columns - 1];
+    int arraySize = matrix.rows + matrix.columns - 1;
+    int maxes[arraySize];
 
-    //TODO
+    for (int i = 0; i < arraySize; ++i) {
+        maxes[i] = INT_MIN;
+    }
 
-    return 0;
+    int increment = matrix.columns - 1;
+
+    for (int i = 0; i < matrix.rows; ++i) {
+        for (int j = 0; j < matrix.columns; ++j) {
+            int index = i - j + increment;
+
+            maxes[index] = max(maxes[index], matrix.cells[i][j]);
+        }
+    }
+
+    long long sum = 0;
+
+    for (int i = 0; i < arraySize; ++i) {
+        if (i != increment) {
+            sum += maxes[i];
+        }
+    }
+
+    return sum;
+}
+
+int getMinInArea(matrix matrix) {
+    position maximumPosition = getMaxValuePos(matrix);
+    int min = INT_MAX;
+
+    for (int i = 0; i <= maximumPosition.rowIndex; ++i) {
+        int columnOffset = (maximumPosition.rowIndex - i) << 1;
+        int startColumn = max(0, maximumPosition.colIndex - columnOffset);
+        int endColumn = min(matrix.columns - 1, maximumPosition.colIndex + columnOffset);
+
+        for (int j = startColumn; j <= endColumn; ++j) {
+            min = min(min, matrix.cells[i][j]);
+        }
+    }
+
+    return min;
+}
+
+float getDistance(const int* values, int valueAmount) {
+    float squaredDistance = 0;
+
+    for (int i = 0; i < valueAmount; ++i) {
+        int value = values[i];
+
+        squaredDistance += ((float) (value * value));
+    }
+
+    return sqrtf(squaredDistance);
+}
+
+void insertionSortRowsMatrixByRowCriteriaF(matrix matrix, float (*criteria)(const int*, int)) {
+    for (int i = 0; i < matrix.rows; i++) {
+        int* row = matrix.cells[i];
+        float weight = criteria(row, matrix.columns);
+        int j = i + 1;
+        float currentWeight;
+
+        while (j >= 0 && (currentWeight = criteria(matrix.cells[j], matrix.columns)) > weight) {
+            matrix.cells[j + 1] = matrix.cells[j];
+            weight = currentWeight;
+            j--;
+        }
+
+        matrix.cells[j + 1] = row;
+    }
+}
+
+void sortByDistances(matrix matrix) {
+    insertionSortRowsMatrixByRowCriteriaF(matrix, getDistance);
 }
 
 int countEqClassesByRowsSum(matrix matrix) {
@@ -152,6 +223,36 @@ void printMatrixWithMaxZeroRows(const matrix* matrices, int matrixAmount) {
 
     for (int i = 0; i < matrixAmount; ++i) {
         if (zeroRowAmounts[i] == maxAmount) {
+            outputMatrix(matrices[i]);
+        }
+    }
+}
+
+int getMatrixNorm(matrix matrix) {
+    int max = 0;
+
+    for (int i = 0; i < matrix.rows; ++i) {
+        int* row = matrix.cells[i];
+
+        for (int j = 0; j < matrix.columns; ++j) {
+            max = max(max, abs(row[j]));
+        }
+    }
+
+    return max;
+}
+
+void printMatricesWithMinNorm(matrix* matrices, int matrixAmount) {
+    int matrixNorms[matrixAmount];
+
+    for (int i = 0; i < matrixAmount; ++i) {
+        matrixNorms[i] = getMatrixNorm(matrices[i]);
+    }
+
+    int minNorm = findMin(matrixNorms, matrixAmount);
+
+    for (int i = 0; i < matrixAmount; ++i) {
+        if (matrixNorms[i] == minNorm) {
             outputMatrix(matrices[i]);
         }
     }
